@@ -237,15 +237,30 @@ function TotalsBar({ data, onAddCurrency, onSetBaseCurrency, onRemoveCurrency })
   const [newRate, setNewRate] = useState("");
   const base = data.baseCurrency || 'BDT';
   const currencies = (data.currencies && data.currencies.length) ? data.currencies : [{ code: base, rate: 1 }];
+  // const totalBase = useMemo(() => {
+  //   const base = (data.baseCurrency||'BDT').toUpperCase();
+  //   const rates = new Map((data.currencies||[]).map(c => [String(c.code||'').toUpperCase(), Number(c.rate)||0]));
+  //   const getRate = (code)=>{ const cc = (code||base).toUpperCase(); if (cc===base) return 1; return rates.get(cc) || 1; };
+  //   return data.categories.reduce((s,c)=>{
+  //     const amt = Number(c.amount)||0; const r = getRate(c.currency);
+  //     return s + (r ? (amt / r) : amt);
+  //   }, 0);
+  // }, [data.categories, data.currencies, data.baseCurrency]);
   const totalBase = useMemo(() => {
-    const base = (data.baseCurrency||'BDT').toUpperCase();
-    const rates = new Map((data.currencies||[]).map(c => [String(c.code||'').toUpperCase(), Number(c.rate)||0]));
-    const getRate = (code)=>{ const cc = (code||base).toUpperCase(); if (cc===base) return 1; return rates.get(cc) || 1; };
-    return data.categories.reduce((s,c)=>{
-      const amt = Number(c.amount)||0; const r = getRate(c.currency);
-      return s + (r ? (amt / r) : amt);
-    }, 0);
-  }, [data.categories, data.currencies, data.baseCurrency]);
+  const base = (data.baseCurrency||'BDT').toUpperCase();
+  const rates = new Map<string, number>((data.currencies||[]).map((c:any) => [String(c.code||'').toUpperCase(), Number(c.rate)||0]));
+  const getRate = (code?:string): number => {
+    const cc = (code||base).toUpperCase();
+    if (cc===base) return 1;
+    return (rates.get(cc) ?? 1);
+  };
+  return data.categories.reduce((s:number,c:any)=>{
+    const amt = Number(c.amount)||0;
+    const r:number = getRate(c.currency);
+    return s + (r ? (amt / r) : amt);
+  }, 0);
+}, [data.categories, data.currencies, data.baseCurrency]);
+
 
   const displayCurrencies = useMemo(() => {
     const seen = new Set();
@@ -413,12 +428,26 @@ function Dashboard({ data, onAddEntry }) {
     });
   }, [categories, entries, year]);
 
+  // const pieData = useMemo(()=>{
+  //   const base = (data.baseCurrency||'BDT').toUpperCase();
+  //   const rates = new Map((data.currencies||[]).map(c => [String(c.code||'').toUpperCase(), Number(c.rate)||0]));
+  //   const getRate = (code)=>{ const cc = (code||base).toUpperCase(); if (cc===base) return 1; return rates.get(cc) || 1; };
+  //   return categories.map(c => ({ name: c.name, value: (Number(c.amount)||0) / getRate(c.currency) }));
+  // }, [categories, data.currencies, data.baseCurrency]);
   const pieData = useMemo(()=>{
-    const base = (data.baseCurrency||'BDT').toUpperCase();
-    const rates = new Map((data.currencies||[]).map(c => [String(c.code||'').toUpperCase(), Number(c.rate)||0]));
-    const getRate = (code)=>{ const cc = (code||base).toUpperCase(); if (cc===base) return 1; return rates.get(cc) || 1; };
-    return categories.map(c => ({ name: c.name, value: (Number(c.amount)||0) / getRate(c.currency) }));
-  }, [categories, data.currencies, data.baseCurrency]);
+  const base = (data.baseCurrency||'BDT').toUpperCase();
+  const rates = new Map<string, number>((data.currencies||[]).map((c:any) => [String(c.code||'').toUpperCase(), Number(c.rate)||0]));
+  const getRate = (code?:string): number => {
+    const cc = (code||base).toUpperCase();
+    if (cc===base) return 1;
+    return (rates.get(cc) ?? 1);
+  };
+  return categories.map((c:any) => ({
+    name: c.name,
+    value: (Number(c.amount)||0) / getRate(c.currency)
+  }));
+}, [categories, data.currencies, data.baseCurrency]);
+
 
   return (
     <div className="space-y-4">

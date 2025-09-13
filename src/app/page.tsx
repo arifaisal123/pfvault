@@ -324,9 +324,9 @@ function TotalsBar({ data, onAddCurrency, onSetBaseCurrency, onRemoveCurrency })
             <Select value={base} onValueChange={(v)=>onSetBaseCurrency(v)}>
               <SelectTrigger><SelectValue placeholder="Base"/></SelectTrigger>
               <SelectContent>
-                {Array.from(new Set((currencies||[]).map(c=>(c.code||'').toUpperCase()).concat([base.toUpperCase()]))).map(code => (
-                  <SelectItem key={code} value={code}>{code}</SelectItem>
-                ))}
+                {Array.from(new Set((currencies||[]).map(c=>(c.code||'').toUpperCase()).concat([base.toUpperCase()]))).map((code: string) => (
+  <SelectItem key={code} value={code}>{code}</SelectItem>
+))}
               </SelectContent>
             </Select>
           </div>

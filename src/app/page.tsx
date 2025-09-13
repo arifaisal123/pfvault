@@ -10,6 +10,35 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { ShieldCheck, LockKeyhole, Plus, LogOut, Save, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 
+interface Category {
+  id: string;
+  name: string;
+  amount: number;
+  currency?: string;
+  remarks?: string;
+}
+
+interface Entry {
+  id: string;
+  categoryId: string;
+  amount: number;
+  dateISO: string;
+}
+
+interface Currency {
+  code: string;
+  rate: number;
+}
+
+interface HistoryItem {
+  id: string;
+  ts: string;
+  type: string;
+  entry?: Entry;
+  category?: Category;
+}
+
+
 // ==========================
 // Utility: Web Crypto helpers
 // ==========================
@@ -237,24 +266,16 @@ function TotalsBar({ data, onAddCurrency, onSetBaseCurrency, onRemoveCurrency })
   const [newRate, setNewRate] = useState("");
   const base = data.baseCurrency || 'BDT';
   const currencies = (data.currencies && data.currencies.length) ? data.currencies : [{ code: base, rate: 1 }];
-  // const totalBase = useMemo(() => {
-  //   const base = (data.baseCurrency||'BDT').toUpperCase();
-  //   const rates = new Map((data.currencies||[]).map(c => [String(c.code||'').toUpperCase(), Number(c.rate)||0]));
-  //   const getRate = (code)=>{ const cc = (code||base).toUpperCase(); if (cc===base) return 1; return rates.get(cc) || 1; };
-  //   return data.categories.reduce((s,c)=>{
-  //     const amt = Number(c.amount)||0; const r = getRate(c.currency);
-  //     return s + (r ? (amt / r) : amt);
-  //   }, 0);
-  // }, [data.categories, data.currencies, data.baseCurrency]);
+
   const totalBase = useMemo(() => {
   const base = (data.baseCurrency||'BDT').toUpperCase();
-  const rates = new Map<string, number>((data.currencies||[]).map((c:any) => [String(c.code||'').toUpperCase(), Number(c.rate)||0]));
+  const rates = new Map<string, number>((data.currencies||[]).map((c:Currency) => [String(c.code||'').toUpperCase(), Number(c.rate)||0]));
   const getRate = (code?:string): number => {
     const cc = (code||base).toUpperCase();
     if (cc===base) return 1;
     return (rates.get(cc) ?? 1);
   };
-  return data.categories.reduce((s:number,c:any)=>{
+  return data.categories.reduce((s:number,c:Category)=>{
     const amt = Number(c.amount)||0;
     const r:number = getRate(c.currency);
     return s + (r ? (amt / r) : amt);
@@ -340,7 +361,7 @@ function TotalsBar({ data, onAddCurrency, onSetBaseCurrency, onRemoveCurrency })
 }
 
 function HistoryTab({ data, onDeleteEntry, onDeleteHistoryItem, categories }) {
-  const rows = useMemo(()=>[...((data.history||[]))].sort((a,b)=> (b.ts||'').localeCompare(a.ts||'')), [data.history]);
+  const rows = useMemo(() => [...((data.history || []) as HistoryItem[])].sort((a, b) => (b.ts||'').localeCompare(a.ts||'')), [data.history]);
   return (
     <Card className="border-slate-200">
       <CardContent className="p-4">
@@ -428,21 +449,15 @@ function Dashboard({ data, onAddEntry }) {
     });
   }, [categories, entries, year]);
 
-  // const pieData = useMemo(()=>{
-  //   const base = (data.baseCurrency||'BDT').toUpperCase();
-  //   const rates = new Map((data.currencies||[]).map(c => [String(c.code||'').toUpperCase(), Number(c.rate)||0]));
-  //   const getRate = (code)=>{ const cc = (code||base).toUpperCase(); if (cc===base) return 1; return rates.get(cc) || 1; };
-  //   return categories.map(c => ({ name: c.name, value: (Number(c.amount)||0) / getRate(c.currency) }));
-  // }, [categories, data.currencies, data.baseCurrency]);
   const pieData = useMemo(()=>{
   const base = (data.baseCurrency||'BDT').toUpperCase();
-  const rates = new Map<string, number>((data.currencies||[]).map((c:any) => [String(c.code||'').toUpperCase(), Number(c.rate)||0]));
+  const rates = new Map<string, number>((data.currencies||[]).map((c:Currency) => [String(c.code||'').toUpperCase(), Number(c.rate)||0]));
   const getRate = (code?:string): number => {
     const cc = (code||base).toUpperCase();
     if (cc===base) return 1;
     return (rates.get(cc) ?? 1);
   };
-  return categories.map((c:any) => ({
+  return categories.map((c:Category) => ({
     name: c.name,
     value: (Number(c.amount)||0) / getRate(c.currency)
   }));
@@ -867,7 +882,7 @@ export default function App() {
                           </tr>
                         </thead>
                         <tbody>
-                          {data.entries.map((e)=>{
+                          {(data.entries as Entry[]).map((e) => {
                             const c = data.categories.find(c=>c.id===e.categoryId);
                             return (
                               <tr key={e.id} className="border-t">

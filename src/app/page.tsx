@@ -38,6 +38,11 @@ interface HistoryItem {
   category?: Category;
 }
 
+interface PieLabelProps {
+  name: string;
+  percent: number;
+}
+
 
 // ==========================
 // Utility: Web Crypto helpers
@@ -506,7 +511,7 @@ function Dashboard({ data, onAddEntry }) {
   return [`${Number(value).toLocaleString()} (${pct})`, name];
 }} />
                 <Legend/>
-                <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={120} label={({ name, percent }: any) => `${name}: ${(percent * 100).toFixed(1)}%`} />
+                <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={120} label={({ name, percent }: PieLabelProps) => `${name}: ${(percent * 100).toFixed(1)}%`} />
               </PieChart>
             )}
           </ResponsiveContainer>

@@ -197,7 +197,7 @@ function Sidebar({ onAddCategory, categories, currencies, baseCurrency, onDelete
         <Select value={currency} onValueChange={setCurrency}>
           <SelectTrigger><SelectValue placeholder="Currency"/></SelectTrigger>
           <SelectContent>
-            {codes.map(code => <SelectItem key={code} value={code}>{code}</SelectItem>)}
+            {codes.map((code:string) => <SelectItem key={code} value={code}>{code}</SelectItem>)}
           </SelectContent>
         </Select>
         <Textarea placeholder="Remarks" value={remarks} onChange={(e)=>setRemarks(e.target.value)} />

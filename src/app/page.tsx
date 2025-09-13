@@ -501,10 +501,10 @@ function Dashboard({ data, onAddEntry }) {
             ) : (
               <PieChart>
                 <Tooltip formatter={(value, name) => {
-                  const total = pieData.reduce((s,d)=> s + d.value, 0) || 1;
-                  const pct = ((value / total) * 100).toFixed(1) + '%';
-                  return [`${Number(value).toLocaleString()} (${pct})`, name];
-                }} />
+  const total = pieData.reduce((s,d)=> s + d.value, 0) || 1;
+  const pct = ((Number(value) / total) * 100).toFixed(1) + '%';
+  return [`${Number(value).toLocaleString()} (${pct})`, name];
+}} />
                 <Legend/>
                 <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={120} label={({ name, percent }) => `${name}: ${(percent*100).toFixed(1)}%`} />
               </PieChart>

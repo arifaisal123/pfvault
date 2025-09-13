@@ -473,8 +473,8 @@ function Dashboard({ data, onAddEntry }) {
             <Select value={String(year)} onValueChange={(v)=>setYear(Number(v))}>
               <SelectTrigger><SelectValue placeholder="Year"/></SelectTrigger>
               <SelectContent>
-                {years.map(y=> <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
-              </SelectContent>
+                  {years.map((y: number) => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
+            </SelectContent>
             </Select>
           </div>
           <div className="flex items-center gap-2">
